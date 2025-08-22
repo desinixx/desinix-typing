@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard | Desinix Typing Tutor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js -->
+<script src="js/progress.js" defer></script>
+</head>
+<body>
+<div class="card">
+  <h2 id="dash-user">Welcome</h2>
+  <div id="dash-progress" class="msg loading">Loading progress...</div>
+
+  <!-- Chart area -->
+  <canvas id="progressChart" style="margin-top:20px; width:100%; max-height:300px;"></canvas>
+
+  <button onclick="startLesson('lesson1')">Lesson 1</button>
+  <button onclick="startLesson('lesson2')">Lesson 2</button>
+  <button onclick="startLesson('lesson3')">Lesson 3</button>
+  <button onclick="logout()">Logout</button>
+</div>
+</body>
+</html>

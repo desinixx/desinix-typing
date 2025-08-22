@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Signup | Desinix Typing Tutor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* inline extras for loader */
+.loader-wrap{display:none;justify-content:center;margin-top:8px;}
+.loader{width:32px;height:32px;border:4px solid #e0e0e0;border-top:4px solid #1565c0;border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbxar7Joa2EUpnZDTjvZ7-oKQK8d5xlXVk0iEgiwZotrU_pkzg-s-MoZxCIxrcY896ZP/exec";
+
+async function sha256(text){
+  const data = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function handleSignup(){
+  const email1 = document.getElementById("signup-email").value.trim().toLowerCase();
+  const email2 = document.getElementById("signup-email2").value.trim().toLowerCase();
+  const pass1  = document.getElementById("signup-pass").value;
+  const pass2  = document.getElementById("signup-pass2").value;
+  const msg    = document.getElementById("signup-msg");
+  const loader = document.getElementById("signup-loader");
+
+  // reset msg
+  msg.textContent="";
+  msg.className="msg";
+
+  // validations
+  if(!email1 || !email2 || !pass1 || !pass2){
+    msg.textContent="Ella fieldum fill cheyyu.";
+    msg.className="msg error";
+    return;
+  }
+  if(email1 !== email2){
+    msg.textContent="Randum type cheytha email onnumalla!";
+    msg.className="msg error";
+    return;
+  }
+  if(pass1 !== pass2){
+    msg.textContent="Password confirm match illa!";
+    msg.className="msg error";
+    return;
+  }
+  if(pass1.length < 4){
+    msg.textContent="Password kurav aanu (4+ char venam).";
+    msg.className="msg error";
+    return;
+  }
+
+  // show loader
+  loader.style.display="flex";
+  msg.textContent="Account create cheyyunnu... wait cheyyu.";
+  msg.className="msg loading";
+
+  const hash = await sha256(pass1);
+
+  try{
+    const res = await fetch(GAS_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ action:"signup", email:email1, passwordHash:hash })
+    });
+    const text = (await res.text()).trim().toLowerCase();
+
+    if(text==="success"){
+      msg.textContent="Account create ayi! Login-ilekk redirect...";
+      msg.className="msg success";
+      setTimeout(()=>{window.location.href="login.html"},1500);
+    }else if(text==="exists"){
+      msg.textContent="Ee email already undu. Login cheyyu.";
+      msg.className="msg error";
+    }else{
+      msg.textContent="Signup error. Pinne sherikkuka.";
+      msg.className="msg error";
+    }
+  }catch(err){
+    console.error(err);
+    msg.textContent="Network / server error.";
+    msg.className="msg error";
+  }finally{
+    loader.style.display="none";
+  }
+}
+</script>
+</head>
+<body>
+<div class="card">
+  <h2>Signup</h2>
+  <input type="email" id="signup-email" placeholder="Email" required autocomplete="username">
+  <input type="email" id="signup-email2" placeholder="Email (re-type)" required autocomplete="username">
+  <input type="password" id="signup-pass" placeholder="Password" required autocomplete="new-password">
+  <input type="password" id="signup-pass2" placeholder="Confirm Password" required autocomplete="new-password">
+  <button onclick="handleSignup()">Create Account</button>
+  <div id="signup-loader" class="loader-wrap"><div class="loader"></div></div>
+  <div id="signup-msg" class="msg"></div>
+  <div class="link">Already account undu? <a href="login.html">Login</a></div>
+</div>
+</body>
+</html>
